@@ -25,7 +25,7 @@ def hive_mqtt(address,port):
 
 
 try:
-    thread.start_new_thread(hive_mqtt,(raw_input("Input address"),raw_input("Input port")))
+    thread.start_new_thread(hive_mqtt,(raw_input("Input address : "),int(input("Input port : ")))
 except :
     print "Failed to create hive_mqtt Thread"
 
