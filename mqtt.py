@@ -6,38 +6,39 @@ input_data=""
 client=mqtt.Client()
 def on_connect(client,userdata,flags,rc):
     print "#Connected"
-    client.subscribe("/ESP/LED",2)
 def on_message(client,userdata,msg):
-    print(str(msg.payload)+"")
+    print(msg.topic+" : "+str(msg.payload))
 def on_disconnect(client,userdata,msg):
     print "#Disconnected"
 def request_input():
     while True:
         input_data=raw_input()
 
-def hive_mqtt():
-    # client=mqtt.Client()
+def hive_mqtt(address,port):
     print "Hive_mqtt is Connecting...."
-    client.username_pw_set("NodeTest","1234")
+    #client.username_pw_set("NodeTest","1234")
     client.on_connect=on_connect
     client.on_message=on_message
     client.on_disconnect=on_disconnect
-    client.connect("m11.cloudmqtt.com",12980,60)
-    client.subscribe("test",2)
+    client.connect(address,port,60)
     client.loop_forever()
 
 
 try:
-    thread.start_new_thread(hive_mqtt,())
+    thread.start_new_thread(hive_mqtt,(raw_input("Input address"),raw_input("Input port")))
 except :
     print "Failed to create hive_mqtt Thread"
 
-
+command = ["",""]
 while True : 
     input_data=raw_input()
-    if input_data=="STOP":
+    command=input_data.split()
+    
+    if command[0]=="#STOP":
         break
-    elif input_data=="RECONNECT":
+    elif command[0] =="#RECONNECT":
         client.reconnect()
+    elif command[0]=="#SUB":
+        client.subscribe(command[1],2)
     else:
-        client.publish("/ESP/LED",input_data,2)
+        client.publish(command[0],command[1],2)
