@@ -7,9 +7,9 @@ client=mqtt.Client()
 def on_connect(client,userdata,flags,rc):
     print "#Connected "
 def on_message(client,userdata,msg):
-    print(msg.topic+" : "+str(msg.payload))
+    print(msg.topic+" : "+msg.payload)
 def on_disconnect(client,userdata,msg):
-    print "#Disconnected"+" "+str(msg.payload)
+    print "#Disconnected"
 
 def hive_mqtt(address,port):
     print "Hive_mqtt is Connecting...."
@@ -21,12 +21,14 @@ def hive_mqtt(address,port):
 
 address=raw_input("Input address : ")
 port = int(input("Input port : "))
+client.username_pw_set("NodeTest","1234")
 try:
     thread.start_new_thread(hive_mqtt,(address,port))
 except :
     print ("Failed to create hive_mqtt Thread")
 
 command = ["",""]
+
 while True : 
     input_data=raw_input()
     command=input_data.split()

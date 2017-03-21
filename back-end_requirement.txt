@@ -1,0 +1,29 @@
+Back End
+
+-Authen
+    -request    : id,pass
+    -response   : cookie
+
+
+-request door's password
+    -request    : ประเภท(ทั่วไป,ติว,ประชุม),token
+    -response   : password
+
+
+-instant open door
+    -request    : open door
+
+-add member
+    -request    : id,pass,name-surname,division,token
+    -response   : true or false
+
+
+-request all member's info
+    -request    : token
+    -response   : Ajax
+
+-request history
+    -request    : 
+    -response   : Ajax
+
+
