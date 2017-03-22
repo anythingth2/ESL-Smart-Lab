@@ -2,43 +2,54 @@ import paho.mqtt.client as mqtt
 import thread
 
 
-input_data=""
-client=mqtt.Client()
-def on_connect(client,userdata,flags,rc):
-    print "#Connected "
-def on_message(client,userdata,msg):
-    print(msg.topic+" : "+msg.payload)
-def on_disconnect(client,userdata,msg):
-    print "#Disconnected"
+class mqtt_server:
 
-def hive_mqtt(address,port):
-    print "Hive_mqtt is Connecting...."
-    client.on_connect=on_connect
-    client.on_message=on_message
-    client.on_disconnect=on_disconnect
-    client.connect(address,port,60)
-    client.loop_forever()
+    client=mqtt.Client()
+    password_door=("1234","56789")
+    door_topic="/ESL/LED"
+    def on_connect(self,client,userdata,flags,rc):
+        print "#Connected "
+
+    def on_message(self,client,userdata,msg):
+        data=msg.payload.split(' ')
+        username_message=data[0]
+        message=""
+        if msg.topic == self.door_topic and username_message != self.client._username and len(data)>1:
+            message=data[1]
+            if self.verify_password(message):
+                self.client.publish(self.door_topic,self.client._username+" "+"1",2)
+            else:
+                self.client.publish(self.door_topic,self.client._username+" "+"0",2)
+        print(msg.topic+" : "+msg.payload)
+
+    def on_disconnect(self,client,userdata,msg):
+        print "#Disconnected"
+
+    def __init__(self,address,port,username,password):
+        print "mqtt is Connecting...."
+        self.client.on_connect=self.on_connect
+        self.client.on_message=self.on_message
+        self.client.on_disconnect=self.on_disconnect
+        self.client.username_pw_set(username,password)
+        self.client.connect(address,port,60)
+        self.client.subscribe(self.door_topic,2)
+        self.client.loop_forever()
+
+
+        
+    def verify_password(self,input_password):
+        for i in range(len(self.password_door)):
+            if self.password_door[i]==input_password:
+                return True
+        
+        return False
+
+
+
 
 address=raw_input("Input address : ")
 port = int(input("Input port : "))
-client.username_pw_set("NodeTest","1234")
-try:
-    thread.start_new_thread(hive_mqtt,(address,port))
-except :
-    print ("Failed to create hive_mqtt Thread")
+username=raw_input("Input username : ")
+password=raw_input("Input password : ")
+mqtt_ESL = mqtt_server(address,port,username,password)
 
-command = ["",""]
-
-while True : 
-    input_data=raw_input()
-    command=input_data.split()
-    if command[0]=="#STOP":
-        break
-    elif command[0] =="#RECONNECT":
-        client.reconnect()
-    elif command[0]=="#SUB":
-        client.subscribe(command[1],2)
-    elif command[0]=="#UNSUB":
-        client.unsubscribe(command[1])
-    else:
-        client.publish(command[0],command[1],2)
