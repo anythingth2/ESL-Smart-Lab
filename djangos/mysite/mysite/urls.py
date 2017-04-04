@@ -15,8 +15,16 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from django.http import HttpRequest
+from django.http import HttpResponse
+from django.conf import settings
+from django.conf.urls.static import static
+import views
+
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^mqttBroker',)
-]
+    url(r'^dashboard', views.dashboard),
+    url(r'^controller',views.controller),
+    url(r'^member',views.member),
+    url(r'^historyTable',views.historyTable)
+]+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

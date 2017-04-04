@@ -12,15 +12,15 @@ class mqtt_server:
 
     def on_message(self,client,userdata,msg):
 
-        data=msg.payload.split(' ')
-        username_message=data[0]
-        message=""
-        if msg.topic == self.door_topic and username_message != self.client._username and len(data)>1:
-            message=data[1]
-            if self.verify_password(message):
-                self.client.publish(self.door_topic,self.client._username+" "+"1",2)
-            else:
-                self.client.publish(self.door_topic,self.client._username+" "+"0",2)
+        # data=msg.payload.split(' ')
+        # username_message=data[0]
+        # message=""
+        # if msg.topic == self.door_topic and username_message != self.client._username and len(data)>1:
+        #     message=data[1]
+        #     if self.verify_password(message):
+        #         self.client.publish(self.door_topic,self.client._username+" "+"1",2)
+        #     else:
+        #         self.client.publish(self.door_topic,self.client._username+" "+"0",2)
         print(msg.topic+" : "+msg.payload)
 
     def on_disconnect(self,client,userdata,msg):
@@ -42,6 +42,7 @@ class mqtt_server:
         for i in range(len(self.password_door)):
             if self.password_door[i]==input_password:
                 return True
+        
         return False
 
 
