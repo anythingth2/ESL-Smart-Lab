@@ -20,11 +20,15 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.conf.urls.static import static
 import views
+import sqlite3
+import os
+
 
 
 urlpatterns = [
     url(r'^dashboard', views.dashboard),
-    url(r'^controller',views.controller),
-    url(r'^member',views.member),
-    url(r'^historyTable',views.historyTable)
-]+static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    url(r'^controller', views.controller),
+    url(r'^member', views.member),
+    url(r'^historyTable', views.historyTable),
+    url(r'^login',views.login)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

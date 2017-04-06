@@ -5,7 +5,7 @@ import thread
 class mqtt_server:
 
     client=mqtt.Client()
-    password_door=("1234","56789")  #add password here!
+    password_door=('1576')  #add password here!
     door_topic="/ESP/LED"           #change topic here!
     def on_connect(self,client,userdata,flags,rc):
         print "#Connected "
