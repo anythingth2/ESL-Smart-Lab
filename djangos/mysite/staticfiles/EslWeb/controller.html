@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ESL IOT</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar" >
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+              <a class="navbar-brand" href="#">ESL IOT System</a>
+          </div>
+          <div id="myNavbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+              <li id = 'dashboardLink'><a href="dashboard.html">Dashboard</a></li>
+              <li id = 'controllerLink' class="active"><a href="controller.html">Controller</a></li>
+              <li id = 'memberLink'><a href="member.html">จัดการสมาชิก</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <div id='logoutForm'class="navbar-form navbar-right">
+                <button  class="btn btn-danger" onclick="logout();" >Logout </button>
+              </div>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    <div id="box" class="container">
+      <div class="row">
+        <center>
+          <h1 style="margin-bottom: 20px">ควบคุม ประตูห้อง ESL</h1>
+        </center>
+      </div>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="funkyradio">
+            <div class="funkyradio-primary">
+              <input type="radio" name="typePermision" id="radio1" checked="" value="normal"/>
+              <label for="radio1">ทั่วไป</label>
+            </div>
+            <div class="funkyradio-primary">
+              <input type="radio" name="typePermision" id="radio2" value="study"/>
+              <label for="radio2">ติว</label>
+            </div>
+            <div class="funkyradio-primary">
+              <input type="radio" name="typePermision" id="radio3" value="meeting"/>
+              <label for="radio3">ประชุม</label>
+            </div>
+          </div>
+        </div>
+        <div id="passCol" class="col-md-4" style="margin-top:10px;">
+          <div id="passTextBox" class="btn-block"><center>PASSWORD</center></div>
+          <button id="createPassBtn" class="btn btn-primary btn-lg btn-block" onclick="reqDoorPassword();">สร้างรหัสผ่าน</button>
+        </div>
+        <div class="col-md-4">
+          <button id="btnOpenNow" class="btn btn-danger btn-lg btn-block" onclick="openDoorNow();">เปิดเลย !!</button>
+        </div>
+      </div>
+    </div>
+    </div>
+  </body>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</html>
+
+<script>
+  //post method
+  function postToSever(url,params,callback){
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("POST", url, true);
+    //Send the proper header information along with the request
+    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xmlhttp.onreadystatechange = function() {//Call a function when the state changes.
+      if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        console.log("postToSever res : "+this.responseText);
+        callback(this.responseText);
+      }
+    }
+    xmlhttp.send(params);
+  }
+
+  function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+  }
+
+  function logout(){
+    document.cookie = "token=;"+"expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    window.location = "/dashboard.html";
+  }
+
+  function openDoorNow(){
+    postToSever("/openDoorNow","token="+getCookie("token"),function(res){
+      alert(res);
+    });
+  }
+
+  function reqDoorPassword(){
+    console.log("Call reqDoorPassword");
+    var m = "typePermision="+$('input[name="typePermision"]:checked').val()+"&token="+getCookie("token");
+    postToSever('/reqDoorPassword',m,function(res){
+      $('#passTextBox').html("<center>"+res+"</center>");
+    });
+  }
+
+</script>

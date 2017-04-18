@@ -1,4 +1,4 @@
-Back End
+﻿Back End
 
 -Authen
     -request    : id,pass
@@ -25,5 +25,50 @@ Back End
 -request history
     -request    : 
     -response   : Ajax
+
+
+
+Dashboard page
+1.	/login
+    a.	ส่ง userName , password
+    b.	รับ token
+
+    ChiChaChai comment "  userName ใช้เป็นemail
+                        ถ้าemailไม่มีในdbหรือpasswordผิด จะ response "null"
+2.	/logout  (ยังไม่ได้ทำ)
+    a.	ส่ง token
+    b.	รับ – 
+3.	/historyTable
+    a.	“EIEI” // ส่งเล่นๆ 555
+    b.	Json history table
+
+
+Controller page
+1.	/logout  (ยังไม่ได้ทำ)
+    a.	ส่ง token
+    b.	รับ – 
+2.	/openDoorNow
+    a.	Token
+    b.	เปิดรึยัง รับเป็น string
+3.	/reqDoorPassword
+    a.	typePermision(String) , token
+    b.	password
+
+member page
+1.	/memberTable
+    a.	token
+    b.	json member table
+2.	/addMember
+    a.	token,userName,passWord,fullName,nickName,status(number 1 – 6)
+    b.	สถานะเพิ่มได้อะป่าว เป็ฯ string 
+3.	/logout  (ยังไม่ได้ทำ)
+    a.	ส่ง token
+    b.	รับ – 
+
+
+XmlHTTPRequrest
+ตอน  post จะส่งเป็ฯ string แบบนี้
+Token=ABC&nickName=field&status=1D
+แต่ของกูใน expressJs มันรับมาจะกลายเป็น json ให้ 
 
 

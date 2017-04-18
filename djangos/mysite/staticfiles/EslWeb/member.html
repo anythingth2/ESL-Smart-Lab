@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ESL IOT</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ESL IOT</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar" >
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+              <a class="navbar-brand" href="#">ESL IOT System</a>
+          </div>
+          <div id="myNavbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+              <li id = 'dashboardLink'><a href="dashboard.html">Dashboard</a></li>
+              <li id = 'controllerLink'><a href="controller.html">Controller</a></li>
+              <li id = 'memberLink'  class="active"><a href="member.html">จัดการสมาชิก</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <div id='logoutForm'class="navbar-form navbar-right">
+                <button  class="btn btn-danger" onclick="logout();" >Logout </button>
+              </div>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <div id="box" class="container">
+        <div class="row">
+          <button type="button" class="btn btn-link" style="float: right; margin-right: 10px;" data-toggle="modal" data-target="#addMemberModal"><h3>เพิ่มสมาชิคใหม่ <span class="glyphicon glyphicon-plus-sign"></span></h3></button>
+        </div>
+        <div class="row">
+          <div class="table-responsive col-md-12">
+            <table class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <td>
+                    ชื่อ - สกุล
+                  </td>
+                  <td>
+                    ชื่อเล่น
+                  </td>
+                  <td>
+                    สถานะ
+                  </td>
+                </tr>
+              </thead>
+              <tbody id="tableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <!-- Add member Modal -->
+      <div class="modal fade" id="addMemberModal" role="dialog">
+        <div class="modal-dialog">
+          <!-- Modal content-->
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">เพิ่มสมาชิค</h4>
+            </div>
+            <div class="modal-body">
+              <div style="margin-bottom:10px;">
+                <center>
+                  <label>User name : </label>
+                  <input id="userName" type="text" name="userName" class="form-control" style="width:60%; display:inline;" placeholder="Username">
+                </center>
+              </div>
+              <div style="margin-bottom:10px;">
+                <center>
+                  <label>Pass word : </label>
+                  <input id="passWord" type="text" name="passWord" class="form-control" style="width:60%; display:inline;" placeholder="Password">
+                </center>
+              </div>
+              <div style="margin-bottom:10px;">
+                <center>
+                  <label>ชื่อ - สกุล : </label>
+                  <input id="fullName" type="text" name="name" class="form-control" style="width:60%; display:inline;" placeholder="ชื่อ - สกุล">
+                </center>
+              </div>
+              <div style="margin-bottom:10px;">
+                <center>
+                  <label>ชื่อเล่น : </label>
+                  <input id="nickName" type="text" name="name" class="form-control" style="width:60%; display:inline;" placeholder="ชื่อเล่น">
+                </center>
+              </div>
+              <div style="margin-bottom:10px;">
+                <center>
+                  <label>สถานะ : </label>
+                  <select id="status" name="status" class="form-control" style="width:40%; display:inline;">
+                    <option value="1">1D</option>
+                    <option value="2">2D</option>
+                    <option value="3">3D</option>
+                    <option value="4">4D</option>
+                    <option value="5">ป.โท</option>
+                    <option value="6">อาจารย์</option>
+                  </select>
+                </center>
+              </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary"value="CreateUser" onclick="addMember();">Create user</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+  </body>
+  <script>
+  // egt member table
+  $(document).ready(getJsonMemberTable());
+
+  //post method
+  function postToSever(url,params,callback){
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("POST", url, true);
+    //Send the proper header information along with the request
+    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xmlhttp.onreadystatechange = function() {//Call a function when the state changes.
+      if(xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        console.log("postToSever res : "+this.responseText);
+        callback(this.responseText);
+      }
+    }
+    xmlhttp.send(params);
+  }
+  // get cookie value function
+  function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+  }
+
+  function logout(){
+    document.cookie = "token=;"+"expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    window.location = "/dashboard.html";
+  }
+
+  function getJsonMemberTable(){
+    console.log("Call getJsonMemberTable");
+    var m = "token="+getCookie("token");
+    postToSever('/memberTable',m,function(res){
+      var jsonMemberTable = JSON.parse(res);
+      buildMemberTable(jsonMemberTable);
+    });
+  }
+
+  function buildMemberTable(jsonMemberTable){
+    for(var i =0;i<Object.keys(jsonMemberTable.id).length;i++){
+      var row = "<tr><td>"+jsonMemberTable.id[i].fullName+"</td><td>"+jsonMemberTable.id[i].nickName+"</td><td>"+jsonMemberTable.id[i].status+"</td></tr>";
+      $("#tableBody").append(row);
+    }
+  }
+
+  function addMember(){
+    console.log("Call addMember");
+    var id = document.getElementById('userName').value;
+    var pass = document.getElementById('passWord').value;
+    var fullName = document.getElementById('fullName').value;
+    var nickName = document.getElementById('nickName').value;
+    var status = $("#status").val();
+    var m  = "token="+getCookie("token")+"&userName="+id+"&passWord="+pass+"&fullName="+fullName+"&nickName="+nickName+"&status="+status;
+    postToSever('/addMember',m,function(res){
+      alert(res);
+      document.getElementById('tableBody').innerHTML = "";
+      getJsonMemberTable();
+    });
+  }
+
+  </script>
+</html>
