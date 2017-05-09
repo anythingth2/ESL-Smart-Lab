@@ -7,6 +7,7 @@ import sqlite3
 import random
 import time
 import base64
+from threading import Timer 
 
 cursordb = connection.cursor()
 print(time.time())
@@ -34,6 +35,10 @@ def historyTable(request):
             raw_years_log_data=(cursordb.fetchone()[0])
             data_response['id'].append({'fullName':raw_name_log_data,'nickName':raw_nickname_log_data,'status':raw_years_log_data})
     return JsonResponse(data_response)
+
+def generate_token():
+    return base64.urlsafe_b64encode(str(random.random()))
+
 
 def login(request):
     
@@ -64,7 +69,11 @@ def login(request):
 
 def logout(request):
     if request.method == 'POST':
-        pass
+        token_login = request.method.replace("token=",'')
+        try:
+            cursordb.execute('UPDATE esl_member SET token="%s" WHERE token="%s";' % (generate_token(),token_login))
+        except:
+            print("Wrong token when logout...")
 
 
 
@@ -73,12 +82,16 @@ def instant_open_door(request):
     if request.method == 'POST':
         token_login = request.body.replace('token=','')
         try:
-            cursordb.execute('SELECT %s FROM esl_member WHERE %s = "%s"' % ('token','token',token_login))      
+            cursordb.execute('SELECT %s FROM esl_member WHERE %s = "%s"' % ('token','token',token_login))
+              
             print("INSTANT OPEN DOOR")
             return HttpResponse("Alohomora")
         except:
             print("someone try to INSTANT_OPEN_DOOR but token is worng...")
             return HttpResponse("null")
+
+def clear_generate_door_password(password_door):
+    cursordb.execute('UPDATE esl_member SET passwordDoor="%s" WHERR passwordDoor="%s";' % ('null',passwordDoor))
 
 def generate_door_password(request):
     if request.method == 'POST':
@@ -87,17 +100,26 @@ def generate_door_password(request):
         token_login = token_login.replace('token=','')
         
         try:
-            cursordb.execute('SELECT %s FROM esl_member WHERE %s = "%s"' % ('token','token',token_login))
+            #checkToken
+            cursordb.execute('SELECT %s FROM esl_member WHERE %s = "%s";' % ('token','token',token_login))
         except:
             return HttpResponse('null')
-
+ 
+        password_gen = str(random.randrange(1000,1000000))
+        cursordb.execute('UPDATE esl_member SET passwordDoor="%s" WHERE token="%s";' % (password_gen,token_login))
+        
         if type_request_gen == 'normal':
-            return HttpResponse(random.randrange(1000,1000000))
+            cursordb.execute('UPDATE esl_member SET typePasswordDoor= "%s" WHERE token="%s";' % ('normal',token_login))
+            timer = Timer(15*60,clear_generate_door_password,(password_gen))
         elif type_request_gen == 'study':
-            return HttpResponse(random.randrange(1000,1000000))
+            cursordb.execute('UPDATE esl_member SET typePasswordDoor= "%s" WHERE token="%s";' % ('tutorial',token_login))
+            timer = Timer(12*60*60,clear_generate_door_password,(password_gen))
         elif type_request_gen == 'meeting':
-            return HttpResponse(random.randrange(1000,1000000))
-    
+            cursordb.execute('UPDATE esl_member SET typePasswordDoor= "%s" WHERE token="%s";' % ('meeting',token_login))
+            timer = Timer(3*60*60,clear_generate_door_password,(password_gen))
 
-def clear_generate_door_password(password_door):
-    pass
+        timer.start()
+        return HttpResponse(password_gen)
+
+
+    

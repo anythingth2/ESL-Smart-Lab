@@ -5,10 +5,10 @@ import thread
 class mqtt_server:
 
     client=mqtt.Client()
-    password_door=('1576')  #add password here!
+    password_door=('1576')           #add password here!
     door_topic="/ESP/LED"           #change topic here!
     def on_connect(self,client,userdata,flags,rc):
-        print "#Connected "
+        pass
 
     def on_message(self,client,userdata,msg):
 
@@ -21,13 +21,10 @@ class mqtt_server:
                 self.client.publish(self.door_topic,self.client._username+" "+"1",2)
             else:
                 self.client.publish(self.door_topic,self.client._username+" "+"0",2)
-        print(msg.topic+" : "+msg.payload)
 
     def on_disconnect(self,client,userdata,msg):
-        print "#Disconnected"
-
+        pass
     def __init__(self,address,port,username,password):
-        print "mqtt is Connecting...."
         self.client.on_connect=self.on_connect
         self.client.on_message=self.on_message
         self.client.on_disconnect=self.on_disconnect
@@ -35,8 +32,14 @@ class mqtt_server:
         self.client.connect(address,port,60)
         self.client.subscribe(self.door_topic,2)
         self.client.loop_forever()
-
-
+    
+    def __init__(self,address,port):
+        self.client.on_connect=self.on_connect
+        self.client.on_message=self.on_message
+        self.client.on_disconnect=self.on_disconnect
+        self.client.connect(address,port,60)
+        self.client.subscribe(self.door_topic,2)
+        self.client.loop_forever()
         
     def verify_password(self,input_password):
         for i in range(len(self.password_door)):
@@ -44,11 +47,15 @@ class mqtt_server:
                 return True
         return False
 
+    
 
-
-
-address=raw_input("Input address : ")
-port = int(input("Input port : "))
-username=raw_input("Input username : ")
-password=raw_input("Input password : ")
-mqtt_ESL = mqtt_server(address,port,username,password)
+class door:
+    mqtt_esl = mqtt_server('localhost','1883')
+    def open_door():
+        mqtt_esl.client.publish()
+    
+    
+# address=raw_input("Input address : ")
+# port = int(input("Input port : "))
+# username=raw_input("Input username : ")
+# password=raw_input("Input password : ")
