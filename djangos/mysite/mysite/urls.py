@@ -35,6 +35,7 @@ urlpatterns = [
     url(r'^reqDoorPassword',views.generate_door_password),
     url(r'^test',views.memberTable),
     url(r'^memberTable',views.memberTable),
-    url(r'^addMember',views.add_member)
+    url(r'^addMember',views.add_member),
+    url(r'^open_door',views.open_door),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
