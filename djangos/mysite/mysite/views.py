@@ -189,11 +189,11 @@ def add_member(request):
 
 def open_door(request):
     if request.method == 'POST':
-        try:
-            
-            cs.execute('SELECT passwordDoor FROM esl_member WHERE passwordDoor = "%s";' % request.body)
-            return HttpResponse('True')
-            print(request.body)
-        except:
+        cs.execute('SELECT passwordDoor FROM esl_member WHERE passwordDoor = "%s";' % request.body)
+        if len(cs.fetchall()) == 0:
             return HttpResponse('False')
+        else:
+            return HttpResponse('True')
+        
+            
     return HttpResponse()
