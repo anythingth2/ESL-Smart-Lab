@@ -1,17 +1,14 @@
 
 
-from django.shortcuts import render, render_to_response
-from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_protect
-from django.db import connection
-import os
-import sqlite3
-import random
-import time
 import base64
-from threading import Timer 
+import random
 from datetime import datetime
-import json 
+from threading import Timer
+
+from django.db import connection
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
+
 cs = connection.cursor()
 
 timer_requestDoor_normal = 30
@@ -34,7 +31,8 @@ def historyTable(request):
         cs.execute('SELECT email FROM esldoor_log ;')
         temp_data = cs.fetchall()
         raw_email_log_data = [temp_data[i][0] for i in range(len(temp_data))]
-        
+
+
         for i in range(len(raw_email_log_data)):
             cs.execute('SELECT %s FROM esl_member WHERE email = "%s";' % ('name',raw_email_log_data[i]) )
             raw_name_log_data=(cs.fetchone()[0])
@@ -98,6 +96,7 @@ def instant_open_door(request):
             return HttpResponse("Alohomora")
         except:
             print("someone try to INSTANT_OPEN_DOOR but token is wrong...")
+
             return HttpResponse()
 
 def clear_generate_door_password(password_door):
@@ -108,6 +107,7 @@ def generate_door_password(request):
         type_request_gen,token_login = request.body.split('&')
         type_request_gen  = type_request_gen.replace('typePermision=','')
         token_login = token_login.replace('token=','')
+
         
         try:
             cs.execute('SELECT email FROM esl_member WHERE token = "%s" ;' % (token_login,))
