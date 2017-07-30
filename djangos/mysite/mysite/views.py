@@ -195,5 +195,5 @@ def open_door(request):
         else:
             return HttpResponse('True')
         
-            
     return HttpResponse()
+
