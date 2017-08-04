@@ -1,5 +1,3 @@
-
-
 import base64
 import random
 from datetime import datetime
@@ -9,12 +7,37 @@ from django.db import connection
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 
+# import socket
+
+
+# RPI_DOOR_IP = '192.168.1.207'
+# RPI_DOOR_PORT = 80
+
+# socket_client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+# socket_client.connect(RPI_DOOR_IP,RPI_DOOR_PORT)
+
 cs = connection.cursor()
 
 timer_requestDoor_normal = 30
 timer_requestDoor_study = 12*60
 timer_requestDoor_meeting = 3*60
 
+def parse_data_to_dict(data):
+    output = {}
+    temp = data.split('&')
+    for var in temp:
+        temp2 = var.split('=')
+        output[temp2[0]] = temp2[1]
+    return output
+
+def fetch_data(column,table,where_column = None,where_data = None):
+    if where_column is None:
+        cs.execute('select %s from  %s ;' % (column,table))
+    elif where_column is not None and where_data is not None:
+        cs.execute('select %s from %s where %s = "%s";' % (column,table,where_column,where_data))
+    return cs.fetchall()
+
+#def insert_data(table,)
 
 def dashboard(request):
     return render(request, 'EslWeb/dashboard.html')
@@ -28,19 +51,9 @@ def member(request):
 def historyTable(request):
     if request.method == 'POST':
         data_response = {'id': []}
-        cs.execute('SELECT email FROM esldoor_log ;')
-        temp_data = cs.fetchall()
-        raw_email_log_data = [temp_data[i][0] for i in range(len(temp_data))]
-
-
-        for i in range(len(raw_email_log_data)):
-            cs.execute('SELECT %s FROM esl_member WHERE email = "%s";' % ('name',raw_email_log_data[i]) )
-            raw_name_log_data=(cs.fetchone()[0])
-            cs.execute('SELECT %s FROM esl_member WHERE email = "%s";' % ('nickname',raw_email_log_data[i]) )
-            raw_nickname_log_data=(cs.fetchone()[0])
-            cs.execute('SELECT %s FROM esl_member WHERE email = "%s";' % ('years',raw_email_log_data[i]) )
-            raw_years_log_data=(cs.fetchone()[0])
-            data_response['id'].append({'fullName':raw_name_log_data,'nickName':raw_nickname_log_data,'status':raw_years_log_data})
+        log = fetch_data('fullName,nickName,status','esldoor_log')
+        for data in log:
+            data_response['id'].append({'fullName':data[0],'nickName':data[1],'status':data[2]})
     return JsonResponse(data_response)
 
 def generate_token():
@@ -58,6 +71,7 @@ def login(request):
         email_login = email_login.replace('userName=','')
         password_login = password_login.replace('passWord=','')
 
+        
         try:
             cs.execute('SELECT %s FROM esl_member WHERE %s = "%s";' % ('password','email',email_login))
             password_fetch=cs.fetchone()[0]
@@ -93,6 +107,7 @@ def instant_open_door(request):
             email_login = cs.fetchone()[0]
             cs.execute('INSERT INTO esldoor_log(email,date) VALUES("%s" ,  "%s" );' % (email_login, getCurrentTime()))
             print("INSTANT OPEN DOOR")
+            socket_client.send('open')
             return HttpResponse("Alohomora")
         except:
             print("someone try to INSTANT_OPEN_DOOR but token is wrong...")
@@ -143,7 +158,6 @@ def generate_door_password(request):
 
 
 def memberTable(request):
-
     if True:
         cs.execute('SELECT name FROM esl_member ;')
         name = cs.fetchall()
@@ -189,11 +203,14 @@ def add_member(request):
 
 def open_door(request):
     if request.method == 'POST':
-        cs.execute('SELECT passwordDoor FROM esl_member WHERE passwordDoor = "%s";' % request.body)
-        if len(cs.fetchall()) == 0:
+        data = fetch_data('id,name,nickname,years','esl_member','passwordDoor',request.body)
+        print(data)
+        if len(data)<=0:
             return HttpResponse('False')
         else:
+            cs.execute('insert into esldoor_log(password_door,date,fullName,nickName,status,member_id) values("%s","%s","%s","%s","%s",%d);' % (request.body,getCurrentTime(),data[0][1],data[0][2],data[0][3],data[0][0]))
             return HttpResponse('True')
-        
     return HttpResponse()
 
+def socket(request):
+    pass

@@ -19,6 +19,7 @@ from django.http import HttpRequest
 from django.http import HttpResponse
 from django.conf import settings
 from django.conf.urls.static import static
+from django.conf.urls import include
 import views
 import sqlite3
 import os
@@ -37,5 +38,6 @@ urlpatterns = [
     url(r'^memberTable',views.memberTable),
     url(r'^addMember',views.add_member),
     url(r'^open_door',views.open_door),
+    # url("", views.socket),
 
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
